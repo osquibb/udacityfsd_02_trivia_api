@@ -1,2 +1,3 @@
 .vscode
 trivia_api_env
+__pycache__/
