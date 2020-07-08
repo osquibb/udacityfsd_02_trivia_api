@@ -23,14 +23,8 @@ def create_app(test_config=None):
   app = Flask(__name__)
   setup_db(app)
   
-  '''
-  @DONE?: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
-  '''
   cors = CORS(app, resources={r'/': {'origins': '*'}})
 
-  '''
-  @DONE?: Use the after_request decorator to set Access-Control-Allow
-  '''
   @app.after_request
   def after_request(response):
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
@@ -141,20 +135,35 @@ def create_app(test_config=None):
     new_answer = body.get('answer', None)
     new_category = body.get('category', None)
     new_difficulty = body.get('difficulty', None)
+    searchTerm = body.get('searchTerm', None)
 
     try:
-      question = Question(question=new_question, answer=new_question, category=new_category, difficulty=new_difficulty)
-      question.insert()
+      if searchTerm:
+        questions = Question.query.filter(Question.question.ilike('%{}%'.format(searchTerm)))
+        
+        if len(questions) == 0:
+          abort(404)
 
-      return jsonify({
-        'success': True
-      }), 200
+        formatted_questions = [ question.format() for question in questions ]
+
+        return jsonify({
+          'success': True,
+          'questions': formatted_questions
+        }), 200
+
+      else:
+        question = Question(question=new_question, answer=new_question, category=new_category, difficulty=new_difficulty)
+        question.insert()
+
+        return jsonify({
+          'success': True
+        }), 200
     
     except:
       abort(422)
 
   '''
-  @TODO: 
+  @DONE w/o Test: 
   Create a POST endpoint to get questions based on a search term. 
   It should return any questions for whom the search term 
   is a substring of the question. 
@@ -164,18 +173,35 @@ def create_app(test_config=None):
   Try using the word "title" to start. 
   '''
 
+
   '''
-  @TODO: 
+  @DONE w/o test: 
   Create a GET endpoint to get questions based on category. 
 
   TEST: In the "List" tab / main screen, clicking on one of the 
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
+  @app.route('/categories/<int:category_id>/questions')
+  def get_questions_by_category(category_id):
+    try:
+      questions = Question.query.filter(Question.category == category_id).all()
 
+      if len(questions) == 0:
+        abort(404)
+
+      formatted_questions = [ question.format() for question in questions ]
+
+      return jsonify({
+          'success': True,
+          'questions': formatted_questions
+        }), 200
+
+    except:
+      abort(422)
 
   '''
-  @TODO: 
+  @DONE w/o test: 
   Create a POST endpoint to get questions to play the quiz. 
   This endpoint should take category and previous question parameters 
   and return a random questions within the given category, 
@@ -185,6 +211,31 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
+
+  @app.route('/quizzes', methods=['POST'])
+  def get_next_question():
+    body = request.get_json()
+    previous_questions = body.get('previous_questions', None)
+    quiz_category = body.get('quiz_category', None)
+
+    questions = Question.query.order_by(Question.id).all()
+
+    try:
+      previous_question_ids = [question['id'] for question in previous_questions]
+      possible_questions = [ question for question in questions if question.id not in previous_question_ids ]
+
+      if len(possible_questions) == 0:
+        abort(404)
+      
+      formatted_random_question = random.choice(possible_questions).format()
+
+      return jsonify({
+          'success': True,
+          'question': formatted_random_question
+        }), 200
+    
+    except:
+      abort(422)
 
   '''
   @TODO: 
