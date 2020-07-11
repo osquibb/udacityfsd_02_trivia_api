@@ -35,11 +35,6 @@ def create_app(test_config=None):
                          'GET, POST, PATCH, DELETE, OPTIONS')
     return response
 
-  '''
-  @DONE?:
-  Create an endpoint to handle GET requests
-  for all available categories.
-  '''
   @app.route('/categories')
   def get_categories():
     try:

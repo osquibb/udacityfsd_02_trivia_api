@@ -73,9 +73,9 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(question, None)
 
     def test_create_new_question(self):
-        new_question = create_test_question()['formatted']
+        new_question = create_test_question()
 
-        res = self.client().post('/questions', json=new_question)
+        res = self.client().post('/questions', json=new_question['formatted'])
         data = json.loads(res.data)
     
         self.assertEqual(res.status_code, 200)
@@ -87,7 +87,17 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(len(data['questions']), 1)  
+        self.assertEqual(len(data['questions']), 1)
+
+    def test_get_questions_by_category(self):
+        res = self.client().get('/categories/2/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(len(data['questions']), 5)
+
+    
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
