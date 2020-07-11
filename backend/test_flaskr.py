@@ -38,10 +38,6 @@ class TriviaTestCase(unittest.TestCase):
         """Executed after reach test"""
         pass
 
-    """
-    TODO
-    Write at least one test for each test for successful operation and for expected errors.
-    """
     def test_get_categories(self):
         res = self.client().get('/categories')
         data = json.loads(res.data)
@@ -97,6 +93,15 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertEqual(len(data['questions']), 5)
 
+    def test_get_next_question(self):
+        res = self.client().post('/quizzes', json={ 'previous_questions': '', 'quiz_category': 2 })
+        data = json.loads(res.data)
+        
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['question'])
+
+    # TODO: Add negative test cases
     
 
 # Make the tests conveniently executable
