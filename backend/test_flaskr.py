@@ -6,7 +6,16 @@ from flask_sqlalchemy import SQLAlchemy
 from flaskr import create_app
 from models import setup_db, Question, Category
 
+def create_test_question():
+    question = Question(
+        question='test question',
+        answer='test answer',
+        difficulty=1,
+        category=1)
 
+    question.insert()
+
+    return { 'id': question.id, 'formatted': question.format() }
 class TriviaTestCase(unittest.TestCase):
     """This class represents the trivia test case"""
 
@@ -52,17 +61,34 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['categories'])
 
     def test_delete_question(self):
-        res = self.client().delete('/questions/1')
+        test_question_id = create_test_question()['id']
+
+        res = self.client().delete('/questions/' + str(test_question_id))
         data = json.loads(res.data)
 
-        question = Question.query.filter(Question.id == 1).one_or_none()
+        question = Question.query.filter(Question.id == test_question_id).one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertEqual(question, None)
 
-        # TODO: prevent from failing after initial deletion
+    def test_create_new_question(self):
+        new_question = create_test_question()['formatted']
+
+        res = self.client().post('/questions', json=new_question)
+        data = json.loads(res.data)
     
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+
+
+    # def test_question_search_with_results(self):
+    #     res = self.client().post('/questions', json={'searchTerm': 'royal'})
+    #     data = json.loads(res.data)
+
+    #     self.assertEqual(res.status_code, 200)
+    #     self.assertEqual(data['success'], True)
+    #     self.assertEqual(len(data['questions']), 1)  
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
