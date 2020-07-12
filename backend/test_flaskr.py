@@ -129,7 +129,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(len(data['questions']), 5)
+        self.assertEqual(len(data['questions']), 4)
 
     def test_404_requesting_questions_from_nonexistent_category(self):
         res = self.client().get('/categories/1000/questions')
