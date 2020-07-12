@@ -1,4 +1,4 @@
 .vscode
 trivia_api_env
 __pycache__/
-node_modules
+node_modules/

@@ -91,7 +91,8 @@ def create_app(test_config=None):
       question.delete()
 
       return jsonify({
-        'success': True
+        'success': True,
+        'id': question_id
       }), 200
 
     except:
@@ -158,7 +159,7 @@ def create_app(test_config=None):
 
     questions = Question.query.order_by(Question.id).all()
 
-    previous_question_ids = [question['id'] for question in previous_questions]
+    previous_question_ids = [question_id for question_id in previous_questions]
     possible_questions = [ question for question in questions if question.id not in previous_question_ids ]
 
     if len(possible_questions) == 0:
