@@ -157,8 +157,11 @@ def create_app(test_config=None):
     previous_questions = body.get('previous_questions', None)
     quiz_category = body.get('quiz_category', None)
 
-    questions = Question.query.order_by(Question.id).all()
-
+    if quiz_category is None or quiz_category['id'] == 0:
+      questions = Question.query.all()
+    else:
+      questions = Question.query.filter(Question.category == quiz_category['id']).all()
+    
     previous_question_ids = [question_id for question_id in previous_questions]
     possible_questions = [ question for question in questions if question.id not in previous_question_ids ]
 
